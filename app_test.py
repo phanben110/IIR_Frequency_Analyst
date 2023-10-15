@@ -212,12 +212,18 @@ elif selected == "Frequency Analyst":
 
             documents = []
             for file in list_file: 
-                documents.append(parse_xml_to_string(f"dataset/ben/{file}")) 
+                documents.append(parse_xml_to_string(f"dataset/{keyword_search}/{file}"))  
 
             filtered_tokens = []
+            progress_text = "Please wait! Processing ..."
+            my_bar = st.progress(0, text=progress_text)
+            process = 0
             for doc in documents:
                 tokens = clean_and_tokenize(doc)
                 filtered_tokens.extend(tokens)
+                process += int(100/len(documents))
+                my_bar.progress( process  , text=progress_text)
+            my_bar.empty()
 
             # Calculate word frequencies
             word_freq = Counter(filtered_tokens)
@@ -241,6 +247,7 @@ elif selected == "Frequency Analyst":
 
             # Display the plot
             st.pyplot(plt)
+            st.balloons()
 
             # Remove stopwords
             remove_stopwords  = st.sidebar.toggle("Remove Stopwords", value=False)
@@ -249,13 +256,20 @@ elif selected == "Frequency Analyst":
 
                 documents = []
                 for file in list_file: 
-                    documents.append(parse_xml_to_string(f"dataset/ben/{file}")) 
+                    documents.append(parse_xml_to_string(f"dataset/{keyword_search}/{file}")) 
 
                 # Remove stopwords and tokenize the text
                 filtered_tokens = []
+                progress_text = "Please wait! Processing ..."
+                my_bar = st.progress(0, text=progress_text)
+                process = 0
                 for doc in documents:
                     tokens = clean_and_tokenize(doc)
                     filtered_tokens.extend([word for word in tokens if word not in stopwords.words('english')])
+                    process += int(100/len(documents))
+                    my_bar.progress( process  , text=progress_text)
+                my_bar.empty()
+
 
                 # Calculate word frequencies
                 word_freq = Counter(filtered_tokens)
@@ -279,14 +293,21 @@ elif selected == "Frequency Analyst":
 
                 # Display the plot
                 st.pyplot(plt)
+                st.balloons()
             porter_algorithm  = st.sidebar.toggle("Porter’s algorithm", value=False)
             if porter_algorithm:
 
                 # Remove stopwords and tokenize the text
                 filtered_tokens = []
+                progress_text = "Please wait! Processing ..."
+                my_bar = st.progress(0, text=progress_text)
+                process = 0
                 for doc in documents:
                     tokens = clean_and_tokenize(doc)
                     filtered_tokens.extend([word for word in tokens if word not in stopwords.words('english')])
+                    process += int(100/len(documents))
+                    my_bar.progress( process  , text=progress_text)
+                my_bar.empty()
 
                 # Apply Porter's stemming algorithm to the filtered tokens
                 stemmer = PorterStemmer()
@@ -314,6 +335,7 @@ elif selected == "Frequency Analyst":
 
                 # Display the plot
                 st.pyplot(plt)
+                st.balloons()
 
 
                 compare  = st.sidebar.toggle("compare the difference", value=False)
@@ -363,6 +385,7 @@ elif selected == "Frequency Analyst":
 
                     # Display the plots
                     st.pyplot(plt)
+                    st.balloons()
 
 
             
