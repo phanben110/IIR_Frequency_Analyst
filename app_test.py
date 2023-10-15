@@ -12,6 +12,10 @@ from tqdm import tqdm
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
+import nltk
+from nltk.corpus import stopwords
+from collections import Counter
+from nltk.stem import PorterStemmer
 
 # Create an option menu for the main menu in the sidebar
 st.set_page_config(page_title="Search PubMed Articles", page_icon="image/logo_csie2.png")
@@ -190,6 +194,7 @@ elif selected == "Frequency Analyst":
         # st.write(f"Closest keywords to '{keyword_search}' is {keywords[0]}") 
         if probabilities[0] > 0.7: 
             st.info(f"Closest keywords to '{keyword_search}': {keywords[0]}",icon="ℹ️")
+            keyword_search = keywords[0]
         else:
             st.warning("No found the keyword", icon="⚠️")
             keyword_search = '' 
@@ -198,10 +203,169 @@ elif selected == "Frequency Analyst":
         keyword_search = ''
     if len(keyword_search) > 0: 
         st.sidebar.title("Setting")
-        top_of_word = st.sidebar.number_input("Top of words", min_value=1, step=1, format="%d")
-
-        if st.sidebar.button('Start analyzing ...'):
+        top_of_word = st.sidebar.number_input("Top of words", min_value=5, step=1, format="%d")
+        zip_distribution  = st.sidebar.toggle("Zipf Distribution", value=False)
+        if zip_distribution:
             st.write("Start analyzing ...")
+
+            list_file = os.listdir(f"dataset/{keyword_search}") 
+
+            documents = []
+            for file in list_file: 
+                documents.append(parse_xml_to_string(f"dataset/ben/{file}")) 
+
+            filtered_tokens = []
+            for doc in documents:
+                tokens = clean_and_tokenize(doc)
+                filtered_tokens.extend(tokens)
+
+            # Calculate word frequencies
+            word_freq = Counter(filtered_tokens)
+
+            # Sort the words by frequency in descending order
+            sorted_word_freq = dict(sorted(word_freq.items(), key=lambda item: item[1], reverse=True))
+
+            # Display only the top 20 frequencies
+            number_of_words = top_of_word
+            top_words = dict(list(sorted_word_freq.items())[:number_of_words])
+
+            # Set Seaborn style
+            sns.set(style="whitegrid")
+
+            # Plot the Zipf distribution for the top 20 words using Seaborn
+            plt.figure(figsize=(10, 6))
+            ax = sns.barplot(x=list(top_words.values()), y=list(top_words.keys()), palette="viridis")
+            ax.set(xlabel='Frequency', ylabel='Words')
+            plt.title(f'Top {number_of_words} Words | Zipf Distribution of Terms (with stopwords)')
+            plt.tight_layout()
+
+            # Display the plot
+            st.pyplot(plt)
+
+            # Remove stopwords
+            remove_stopwords  = st.sidebar.toggle("Remove Stopwords", value=False)
+            if remove_stopwords:
+                list_file = os.listdir(f"dataset/{keyword_search}") 
+
+                documents = []
+                for file in list_file: 
+                    documents.append(parse_xml_to_string(f"dataset/ben/{file}")) 
+
+                # Remove stopwords and tokenize the text
+                filtered_tokens = []
+                for doc in documents:
+                    tokens = clean_and_tokenize(doc)
+                    filtered_tokens.extend([word for word in tokens if word not in stopwords.words('english')])
+
+                # Calculate word frequencies
+                word_freq = Counter(filtered_tokens)
+
+                # Sort the words by frequency in descending order
+                sorted_word_freq = dict(sorted(word_freq.items(), key=lambda item: item[1], reverse=True))
+
+                # Display only the top 100 frequencies
+                number_of_words = top_of_word
+                top_100_words = dict(list(sorted_word_freq.items())[:number_of_words])
+
+                # Set Seaborn style
+                sns.set(style="whitegrid")
+
+                # Plot the Zipf distribution for the top 100 words using Seaborn
+                plt.figure(figsize=(10, 6))
+                ax = sns.barplot(x=list(top_100_words.values()), y=list(top_100_words.keys()), palette="viridis")
+                ax.set(xlabel='Frequency', ylabel='Words')
+                plt.title(f'Top {number_of_words} Zipf Distribution of Terms (Remove Stopwords)')
+                plt.tight_layout()
+
+                # Display the plot
+                st.pyplot(plt)
+            porter_algorithm  = st.sidebar.toggle("Porter’s algorithm", value=False)
+            if porter_algorithm:
+
+                # Remove stopwords and tokenize the text
+                filtered_tokens = []
+                for doc in documents:
+                    tokens = clean_and_tokenize(doc)
+                    filtered_tokens.extend([word for word in tokens if word not in stopwords.words('english')])
+
+                # Apply Porter's stemming algorithm to the filtered tokens
+                stemmer = PorterStemmer()
+                stemmed_tokens = [stemmer.stem(word) for word in filtered_tokens]
+
+                # Calculate word frequencies
+                word_freq = Counter(stemmed_tokens)
+
+                # Sort the words by frequency in descending order
+                sorted_word_freq = dict(sorted(word_freq.items(), key=lambda item: item[1], reverse=True))
+
+                # Display only the top 20 frequencies
+                number_of_words = top_of_word
+                top_words = dict(list(sorted_word_freq.items())[:number_of_words])
+
+                # Set Seaborn style
+                sns.set(style="whitegrid")
+
+                # Plot the Zipf distribution for the top 20 stemmed words using Seaborn
+                plt.figure(figsize=(10, 6))
+                ax = sns.barplot(x=list(top_words.values()), y=list(top_words.keys()), palette="viridis")
+                ax.set(xlabel='Frequency', ylabel='Words')
+                plt.title(f'Top {number_of_words} Zipf Distribution of Terms (with Stopwords Removed and Porter Stemming)')
+                plt.tight_layout()
+
+                # Display the plot
+                st.pyplot(plt)
+
+
+                compare  = st.sidebar.toggle("compare the difference", value=False)
+                if compare: 
+
+                    # Remove stopwords and tokenize the text
+                    filtered_tokens = []
+                    for doc in documents:
+                        tokens = clean_and_tokenize(doc)
+                        filtered_tokens.extend([word for word in tokens if word not in stopwords.words('english')])
+
+                    # Apply Porter's stemming algorithm to the filtered tokens
+                    stemmer = PorterStemmer()
+                    stemmed_tokens = [stemmer.stem(word) for word in filtered_tokens]
+
+                    # Calculate word frequencies before stemming
+                    word_freq_before = Counter(filtered_tokens)
+
+                    # Calculate word frequencies after stemming
+                    word_freq_after = Counter(stemmed_tokens)
+
+                    # Sort the words by frequency in descending order
+                    sorted_word_freq_before = dict(sorted(word_freq_before.items(), key=lambda item: item[1], reverse=True))
+                    sorted_word_freq_after = dict(sorted(word_freq_after.items(), key=lambda item: item[1], reverse=True))
+
+                    # Display only the top 20 frequencies
+                    number_of_words = top_of_word
+                    top_words_before = dict(list(sorted_word_freq_before.items())[:number_of_words])
+                    top_words_after = dict(list(sorted_word_freq_after.items())[:number_of_words])
+
+                    # Set Seaborn style
+                    sns.set(style="whitegrid")
+
+                    # Plot the Zipf distribution before and after Porter's stemming
+                    plt.figure(figsize=(14, 6))
+                    plt.subplot(1, 2, 1)
+                    ax = sns.barplot(x=list(top_words_before.values()), y=list(top_words_before.keys()), palette="viridis")
+                    ax.set(xlabel='Frequency', ylabel='Words')
+                    plt.title(f'Top {number_of_words} Zipf Distribution of Terms (Before Stemming)')
+
+                    plt.subplot(1, 2, 2)
+                    ax = sns.barplot(x=list(top_words_after.values()), y=list(top_words_after.keys()), palette="viridis")
+                    ax.set(xlabel='Frequency', ylabel='Words')
+                    plt.title(f'Top {number_of_words} Zipf Distribution of Terms (After Stemming)')
+
+                    plt.tight_layout()
+
+                    # Display the plots
+                    st.pyplot(plt)
+
+
+            
 
 
 
