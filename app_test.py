@@ -4,7 +4,14 @@ import xml.etree.ElementTree as ET
 import xml.etree.ElementTree as ET
 from src.search_engine import parse_xml
 from src.search_engine import search_and_highlight
+from src.search_engine import *
 import re
+from Bio import Entrez
+import os
+from tqdm import tqdm
+import matplotlib.pyplot as plt
+import seaborn as sns
+import pandas as pd
 
 # Create an option menu for the main menu in the sidebar
 st.set_page_config(page_title="Search PubMed Articles", page_icon="image/logo_csie2.png")
@@ -92,8 +99,114 @@ if selected == "Search Engine":
 
 elif selected == "Upload File":
     st.image("image/upload_file_title.png")
+
 elif selected == "Download PubMed":
     st.image("image/download_title.png")
+    keyword_search = st.text_input("Enter keyword to download PubMed for:")
+
+    # Add an input field for "Number of Documents" with validation
+    number_of_document = st.number_input("Number of Documents", min_value=1, step=1, format="%d")
+
+    if st.button("Download"):
+        folder_path = f"dataset/{keyword_search}"
+        if not os.path.exists(folder_path):
+            os.makedirs(folder_path)
+        else:
+            st.warning(f"Folder '{folder_path}' already exists.", icon="⚠️")
+
+        # Search PubMed database
+        handle = Entrez.esearch(db="pubmed", term=keyword_search, retmax=number_of_document)
+        record = Entrez.read(handle)
+        handle.close()
+
+        # Download and save XML files
+        progress_text = "Please wait! Downloading ..."
+        my_bar = st.progress(0, text=progress_text)
+        number_of_document_real = len(record["IdList"])
+        process = 0
+        for i, pubmed_id in enumerate(tqdm(record["IdList"], desc="Processing documents")):
+            fetch_handle = Entrez.efetch(db="pubmed", id=pubmed_id, rettype="xml", retmode="xml")
+            xml_data = fetch_handle.read()
+            fetch_handle.close()
+
+            # Construct XML file's name, typically using PubMed ID
+            xml_file_name = os.path.join(folder_path, f"{pubmed_id}.xml")
+
+            # Save XML data to a file, using binary mode 'wb' to write byte data
+            with open(xml_file_name, "wb") as xml_file:
+                xml_file.write(xml_data)
+            process += int(100/number_of_document_real)
+            my_bar.progress( process  , text=progress_text)
+        my_bar.empty()
+        st.success(' Download success!', icon="✅")
+        st.balloons()
+
+    path_keywords = os.listdir("dataset")
+    if len(path_keywords) > 0: 
+        number_of_files = []
+        for path_keyword in path_keywords:
+            folder_path = f"dataset/{path_keyword}" 
+            file_count = len(os.listdir(folder_path))
+            #print(folder_path)
+            print(file_count)
+            number_of_files.append(file_count) 
+
+
+        # Create a list of dictionaries to store the data
+        st.markdown(f'<p style="text-align:center; color:red;">The number of articles containing the keyword in the dataset</p>', unsafe_allow_html=True)
+        table_data = [{"Keyword": path_keywords[i], 
+                    "Number of articles": number_of_files[i]} for i in range(len(path_keywords))]
+        st.table(table_data)
+
 elif selected == "Frequency Analyst":
     st.image("image/analyst_title.png")
+    keyword_search = ''
+    keyword_search = st.text_input("Enter keyword :")
+    edit_distance = st.toggle("Edit distance", value=False)
+    path_keywords = os.listdir("dataset")
+    if keyword_search in path_keywords: 
+        st.info(f"Your keyword is {keyword_search}", icon="ℹ️")
+    elif edit_distance and len(keyword_search) > 0: 
+        suggestions = find_closest_keywords(keyword_search, path_keywords, num_suggestions = 10  )
+
+        # Create a bar chart using Seaborn
+        keywords, probabilities = zip(*suggestions)
+        data = {"Keywords": keywords, "Probability": probabilities}
+        df = pd.DataFrame(data)
+
+        plt.figure(figsize=(8, 4))
+        sns.set(style="whitegrid")  # Set the style to have a white grid
+        ax = sns.barplot(x="Keywords", y="Probability", data=df)
+        plt.xticks(rotation=45)
+        plt.title("Keyword Probabilities with Edit Distance")
+
+        # Add percentages on each bar
+        for p in ax.patches:
+            ax.annotate(f'{p.get_height()*100:.2f}%', (p.get_x() + p.get_width() / 2., p.get_height()),
+                        ha='center', va='center', fontsize=10, color='black', xytext=(0, 5),
+                        textcoords='offset points')
+
+        st.pyplot(plt)
+        # st.write(f"Closest keywords to '{keyword_search}' is {keywords[0]}") 
+        if probabilities[0] > 0.7: 
+            st.info(f"Closest keywords to '{keyword_search}': {keywords[0]}",icon="ℹ️")
+        else:
+            st.warning("No found the keyword", icon="⚠️")
+            keyword_search = '' 
+    elif len(keyword_search) > 0: 
+        st.warning("No found the keyword", icon="⚠️")
+        keyword_search = ''
+    if len(keyword_search) > 0: 
+        st.sidebar.title("Setting")
+        top_of_word = st.sidebar.number_input("Top of words", min_value=1, step=1, format="%d")
+
+        if st.sidebar.button('Start analyzing ...'):
+            st.write("Start analyzing ...")
+
+
+
+
+
+
+
 
