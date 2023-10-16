@@ -211,14 +211,14 @@ def softmax(x):
     e_x = np.exp(x - np.max(x))
     return e_x / e_x.sum()
 
-# def find_closest_keywords(input_word, keyword_list, num_suggestions=10):
-#     distances = [editdistance.eval(input_word, keyword) for keyword in keyword_list]
-#     softmax_probabilities = softmax(-np.array(distances))
+def find_closest_keywords_search_engine(input_word, keyword_list, num_suggestions=10):
+    distances = [editdistance.eval(input_word, keyword) for keyword in keyword_list]
+    softmax_probabilities = softmax(-np.array(distances))
     
-#     suggestions = list(zip(keyword_list, softmax_probabilities))
-#     suggestions = sorted(suggestions, key=lambda x: x[1], reverse=True)[:num_suggestions]
+    suggestions = list(zip(keyword_list, softmax_probabilities))
+    suggestions = sorted(suggestions, key=lambda x: x[1], reverse=True)[:num_suggestions]
     
-#     return suggestions
+    return suggestions
 
 def find_closest_keywords(input_word, keyword_list, num_suggestions=10):
     input_word = input_word.lower()

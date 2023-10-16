@@ -259,7 +259,7 @@ def frequency_analyst():
 
         st.pyplot(plt)
         # st.write(f"Closest keywords to '{keyword_search}' is {keywords[0]}") 
-        if probabilities[0] > 0.7: 
+        if probabilities[0] > 0.6: 
             st.info(f"Closest keywords to '{keyword_search}': {keywords[0]}",icon="ℹ️")
             keyword_search = keywords[0]
         else:

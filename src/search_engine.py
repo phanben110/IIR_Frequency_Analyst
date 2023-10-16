@@ -16,31 +16,65 @@ import nltk
 from nltk.corpus import stopwords
 from collections import Counter
 from nltk.stem import PorterStemmer
+from fuzzywuzzy import fuzz
+from fuzzywuzzy import process
 
 def search_engine():
     st.image("image/search_title.png")
     # Sidebar
 
-    st.sidebar.title("File Management")
-    uploaded_files = st.sidebar.file_uploader("Upload PubMed XML Files", type=["xml"], accept_multiple_files=True)
-
-    # Page
-
-    # # Page
-    # st.title("PubMed Document Retrieval")
-    # st.subheader("Search PubMed Articles")
-
-    # Initialize data list
-    data = []
-
-    # Load uploaded files
-    for uploaded_file in uploaded_files:
-        data += parse_xml(uploaded_file)
+    # st.sidebar.title("File Management")
+    # uploaded_files = st.sidebar.file_uploader("Upload PubMed XML Files", type=["xml"], accept_multiple_files=True)
+    # list_file = os.listdir("dataset/Covid19") 
+    # print(uploaded_files)
 
     # Search
     keyword = st.text_input("Enter keyword to search for:")
-    case_sensitive = st.toggle("Case Sensitive Search", value=True)
+    case_sensitive = True
+    # case_sensitive = st.toggle("Case Sensitive Search", value=True)
     matching_articles = []
+    # edit_distance = st.toggle("Edit distance", value=False)
+    edit_distance = True
+
+    if edit_distance and len(keyword) > 0: 
+        data = []
+        documents = []
+        # Load uploaded files
+        filtered_tokens = [] 
+        list_file = os.listdir("dataset/Covid19")
+        for file in list_file:
+            try:
+              data += parse_xml(f"dataset/Covid19/{file}")
+              documents.append(parse_xml_to_string(f"dataset/Covid19/{file}"))
+            except: 
+              continue 
+
+        for doc in documents:
+          tokens = clean_and_tokenize(doc)
+          filtered_tokens.extend([word for word in tokens if word not in stopwords.words('english')])
+
+        len(filtered_tokens)
+        unique_list = list(set(map(str.lower, filtered_tokens)))
+
+        filtered_list = [word for word in unique_list if not word.isnumeric() and word.isalpha() and len(word) <= 10]
+
+        # Calculate similarity scores for all keywords
+        similarity_scores = [(word, fuzz.ratio(keyword, word)) for word in filtered_list]
+        # Sort the list of keywords by similarity in descending order
+        sorted_keywords = sorted(similarity_scores, key=lambda x: x[1], reverse=True)
+        # Get the top 10 keywords
+        top_10_keywords = [word for word, score in sorted_keywords[:9]]
+        top_10_keywords.append(keyword)
+
+        option = st.selectbox('Recommend the nearest word...',top_10_keywords)
+
+        st.info(f"Your keyword: {option}", icon="ℹ️")
+        keyword = option        
+
+        # print("Top 10 keywords:")
+        # for keyword in top_10_keywords:
+        #     print(keyword)
+          
 
     if st.button("Search"):
         for article in data:
