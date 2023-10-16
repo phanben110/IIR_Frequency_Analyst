@@ -1,3 +1,4 @@
 dataset/*
 *.pyc
 .DS_Store
+save_img/*

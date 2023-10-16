@@ -68,14 +68,135 @@ def download_pubmed():
             number_of_files.append(file_count) 
 
 
-        # Create a list of dictionaries to store the data
+        # # Create a list of dictionaries to store the data
+        # st.markdown(f'<p style="text-align:center; color:red;">The number of articles containing the keyword in the dataset</p>', unsafe_allow_html=True)
+        # table_data = [{"Keyword": path_keywords[i], 
+        #             "Number of articles": number_of_files[i]} for i in range(len(path_keywords))]
+        # st.table(table_data)
+
+        # Tạo DataFrame
+        # df = pd.DataFrame({"Keyword": path_keywords, "Number of articles": number_of_files})
+
+        # # Tạo HTML cho bảng với màu kẻ
+        # table_html = f"""
+        #     <style>
+        #     table {{
+        #         border-collapse: collapse;
+        #         width: 100%;
+        #     }}
+        #     th, td {{
+        #         text-align: center;
+        #         padding: 8px;
+        #         border: 1px solid black;
+        #     }}
+        #     </style>
+        #     <table>
+        #     <tr>
+        #         <th style="background-color: lightgray;">Keyword</th>
+        #         <th style="background-color: lightgray;">Number of articles</th>
+        #     </tr>
+        #     <tr>
+        #         <td>{df.loc[0, "Keyword"]}</td>
+        #         <td>{df.loc[0, "Number of articles"]}</td>
+        #     </tr>
+        #     <tr>
+        #         <td>{df.loc[1, "Keyword"]}</td>
+        #         <td>{df.loc[1, "Number of articles"]}</td>
+        #     </tr>
+        #     <tr>
+        #         <td>{df.loc[2, "Keyword"]}</td>
+        #         <td>{df.loc[2, "Number of articles"]}</td>
+        #     </tr>
+        #     </table>
+        # """
+
+        # st.markdown(f'<p style="text-align:center; color:red;">The number of articles containing the keyword in the dataset</p>', unsafe_allow_html=True)
+        # st.markdown(table_html, unsafe_allow_html=True)
+
+
+
+        # # Tạo DataFrame
+        # df = pd.DataFrame({"Keyword": path_keywords, "Number of articles": number_of_files})
+
+        # # Tạo HTML cho bảng với màu kẻ
+        # table_html = f"""
+        #     <style>
+        #     table {{
+        #         border-collapse: collapse;
+        #         width: 100%;
+        #     }}
+        #     th, td {{
+        #         text-align: center;
+        #         padding: 8px;
+        #         border: 1px solid black;
+        #     }}
+        #     th {{
+        #         background-color: lightgray;
+        #     }}
+        #     </style>
+        #     <table>
+        #     <tr>
+        #         <th>Index</th>
+        #         <th>Keyword</th>
+        #         <th>Number of articles</th>
+        #     </tr>
+        #     """
+            
+        # for index, row in df.iterrows():
+        #     table_html += f"<tr><td>{index + 1}</td><td>{row['Keyword']}</td><td>{row['Number of articles']}</td></tr>"
+
+        # table_html += "</table>"
+
+        # st.markdown(f'<p style="text-align:center; color:red;">The number of articles containing the keyword in the dataset</p>', unsafe_allow_html=True)
+        # st.markdown(table_html, unsafe_allow_html=True)
+
+
+        # Tạo DataFrame
+        df = pd.DataFrame({"Keyword": path_keywords, "Number of articles": number_of_files})
+
+        # Tạo HTML cho bảng với màu kẻ và highlight từ khóa
+        table_html = f"""
+            <style>
+            table {{
+                border-collapse: collapse;
+                width: 100%;
+            }}
+            th, td {{
+                text-align: center;
+                padding: 8px;
+                border: 1px solid black;
+            }}
+            th {{
+                background-color: lightgray;
+            }}
+            td.highlight {{
+                background-color: yellow;
+                font-weight: bold;
+            }}
+            </style>
+            <table>
+            <tr>
+                <th>Index</th>
+                <th>Keyword</th>
+                <th>Number of articles</th>
+            </tr>
+            """
+
+        # List of keywords to highlight
+        highlight_keywords = ["brain injury", "non-Hodgkin lymphoma"]
+
+        for index, row in df.iterrows():
+            # Check if the Keyword column contains any of the highlight keywords
+            is_highlighted = any(keyword in row["Keyword"] for keyword in highlight_keywords)
+            
+            if is_highlighted:
+                table_html += f"<tr><td>{index + 1}</td><td class='highlight'>{row['Keyword']}</td><td class='highlight'>{row['Number of articles']}</td></tr>"
+            else:
+                table_html += f"<tr><td>{index + 1}</td><td>{row['Keyword']}</td><td>{row['Number of articles']}</td></tr>"
+
+        table_html += "</table>"
+
         st.markdown(f'<p style="text-align:center; color:red;">The number of articles containing the keyword in the dataset</p>', unsafe_allow_html=True)
-        table_data = [{"Keyword": path_keywords[i], 
-                    "Number of articles": number_of_files[i]} for i in range(len(path_keywords))]
-        st.table(table_data)
-
-
-
-
+        st.markdown(table_html, unsafe_allow_html=True)
 
 

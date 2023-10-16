@@ -38,7 +38,8 @@ elif selected == "Download PubMed":
     download_pubmed()
 
 elif selected == "Frequency Analyst":
-    frequency_analyst() 
+    frequency_analyst()
+    
 
 
             

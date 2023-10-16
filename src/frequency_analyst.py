@@ -152,7 +152,7 @@ def porter_stemmer(documents, top_of_word, keyword_search, remove_stopwords = Tr
         ax.set(xlabel='Frequency', ylabel='Words')
         #st.markdown(f'<p style="text-align:center; color:red;">Top {number_of_words} Zipf Distribution of Terms (with Stopwords Removed and Porter Stemming)</p>', unsafe_allow_html=True)
         #plt.title(f'Top {number_of_words} Zipf Distribution of Terms (with Stopwords Removed and Porter Stemming)')
-        st.markdown(f'<p style="text-align:center; color:red;">Table: Top {number_of_words} Words |Zipf Distribution of Terms (Stopwords Removed and Porter Stemming)</p>', unsafe_allow_html=True)
+        st.markdown(f'<p style="text-align:center; color:red;">Table: Top {number_of_words} Words | Zipf Distribution of Terms (Stopwords Removed and Porter Stemming)</p>', unsafe_allow_html=True)
         plt.tight_layout()
         plt.savefig(file_path, transparent=True)
         # Display the plot
@@ -291,3 +291,4 @@ def frequency_analyst():
                 compare_status  = st.sidebar.toggle("compare the difference", value=False)
                 if compare_status: 
                     compare(documents, top_of_word, keyword_search, remove_stopwords_status)
+                    st.balloons()
