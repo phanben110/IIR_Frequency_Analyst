@@ -4,6 +4,9 @@ import re
 import os 
 import editdistance
 import numpy as np
+import nltk
+from nltk.corpus import stopwords
+from collections import Counter
 
 
 import xml.etree.ElementTree as ET
@@ -192,7 +195,7 @@ def parse_xml_to_string(xml_file):
     data_string = ""
     for entry in data:
         for key, value in entry.items():
-            data_string += value + ". "
+            data_string += str(value)
     return data_string
 
 # def find_closest_keywords(input_word, keyword_list, num_suggestions=3):
@@ -216,3 +219,10 @@ def find_closest_keywords(input_word, keyword_list, num_suggestions=10):
     suggestions = sorted(suggestions, key=lambda x: x[1], reverse=True)[:num_suggestions]
     
     return suggestions
+
+def clean_and_tokenize(text):
+    # Remove punctuation and convert to lowercase
+    text = re.sub(r'[^\w\s]', '', text.lower())
+    # Tokenize the text
+    tokens = nltk.word_tokenize(text)
+    return tokens
