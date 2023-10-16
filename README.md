@@ -18,6 +18,8 @@ Brief description of your project.
 
 - **Frequency Analyst**: Offers a tool for analyzing the frequency of keywords and generating insights from the data. Additionally, it provides the ability to visualize the Zipf Distribution computation (frequency spectrum for terms).
 
+- **Edit Distance**: Includes a feature to calculate the edit distance between keywords and terms within the articles. This is valuable for identifying approximate matches and relevant results.
+
 ## Algorithms
 
 - **Streamlit**: The primary framework for building the user interface and integrating different features.
