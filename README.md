@@ -48,6 +48,9 @@ To run this project locally, you can follow these steps:
 
 3. Access the web application by opening a web browser and navigating to the provided URL.
 
+## Video Demo
+https://youtu.be/k1HVlkoP-tw
+
 ## Conclusion
 
 The "Project Name" project offers a powerful and user-friendly tool for analyzing and managing PubMed articles. With advanced features such as Zipf Distribution computation, Porter's algorithm, programming-based Edit distance computation, and intuitive interfaces, this application is an ideal choice for researchers and professionals in the biomedical field. Whether you need to download PubMed articles, conduct keyword frequency analysis, visualize Zipf Distribution, or retrieve results with pinpointed information, this application has you covered.
