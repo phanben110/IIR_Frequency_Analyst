@@ -1,0 +1,7 @@
+Bio
+matplotlib
+seaborn
+streamlit
+streamlit_option_menu
+nltk
+pandas
