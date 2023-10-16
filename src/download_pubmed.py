@@ -73,3 +73,9 @@ def download_pubmed():
         table_data = [{"Keyword": path_keywords[i], 
                     "Number of articles": number_of_files[i]} for i in range(len(path_keywords))]
         st.table(table_data)
+
+
+
+
+
+
